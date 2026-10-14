@@ -1,0 +1,28 @@
+{
+  "revision": 1,
+  "versions": {
+    "1.0.0": {
+      "platforms": { "android": "open", "ios": "open", "standalone": "open" },
+      "endpoints": {
+        "auth": "https://auth.example.com/auth/",
+        "game": "https://game.example.com/",
+        "realtime": "wss://rt.example.com/rpc"
+      },
+      "maintenance": {
+        "startAt": "2030-01-01T02:00:00Z",
+        "endAt": "2030-01-01T04:00:00Z",
+        "defaultLanguage": "en",
+        "messages": { "en": "Scheduled maintenance", "ko": "정기 점검" }
+      },
+      "features": { "shopEnabled": true }
+    },
+    "1.1.0": {
+      "platforms": { "android": "internal", "ios": "internal", "standalone": "internal" },
+      "review": true,
+      "endpoints": { "game": "https://review.example.com/" }
+    },
+    "*": {
+      "platforms": { "android": "closed", "ios": "closed", "standalone": "closed" }
+    }
+  }
+}

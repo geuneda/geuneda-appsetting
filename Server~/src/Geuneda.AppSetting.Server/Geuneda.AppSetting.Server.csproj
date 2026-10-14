@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    설정 문서 서명·검증과 ASP.NET Core 배포 헬퍼. 문서 형식(봉투, 본문 규칙, 서명 입력, 공개 키)은 Unity 패키지(Runtime/Document)의 것을
+    링크해 한 곳에서 관리한다. 그래서 서명 도구가 받아들인 문서는 클라이언트도 받아들인다
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Geuneda.AppSetting.Server</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Geuneda.AppSetting.Server.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- Unity 의 com.unity.nuget.newtonsoft-json 3.2.1(13.0.2)과 같은 13.x -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Label="Unity 패키지와 공유">
+    <Compile Include="$(AppSettingRuntimeDir)Document/*.cs" LinkBase="Shared/Document" />
+  </ItemGroup>
+</Project>

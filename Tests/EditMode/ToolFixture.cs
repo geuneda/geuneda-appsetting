@@ -1,0 +1,27 @@
+// ReSharper disable once CheckNamespace
+
+namespace Geuneda.AppSetting.Tests
+{
+	/// <summary>
+	/// .NET 서명 CLI(<c>Server~/src/Geuneda.AppSetting.Tool</c>)로 만든 문서와 공개 키입니다(2026-10-14, RSA-3072).
+	/// 본문은 샘플 서버의 <c>appsetting.payload.json</c> 이고, 개인 키는 버렸습니다. 서버가 서명한 문서를 Unity 가 검증하는지 봅니다.
+	/// </summary>
+	internal static class ToolFixture
+	{
+		public const string KeyId = "fixture-2026-10";
+		public const string Modulus = "8C0eupzsD_6LwIOCe8ILrtW6_-EDHFwZmSyV5gluK3zVd5W-X8zGmhzlA1SeaRch2Uv9EmouHLJ_1Kz1uf94adULbhjYXIvNnztQ6qA7Dr9B2VZZlKW99Cj8Jk7L6Zw4gIpeztMUaBRhP3xkmRZKcYDZYmoPq7FUPQklvTqNZYTTG9lzDOsjyC6OeforvbSck5HZtK_V9k0EIky1CC6djt5GPeyn001aaX9yqcNY6v3brjAxa6Y_Z4zM1zGDOsYuSVhVbzWAwyr0-JaBHIKPR9J8wVMsbqICV8OLKQrIkAmyS5W78aHiJtY4XSkmo21X5BuhxmJEetkhdjvvf6nRxnedXu3y2ePS4-1-lNYfii3rH5oXPgWDYAQgtWOdxiT8NfZDqpkKHIn37pjbintroMw0p6-v2YJsKbiAa6dcfr8JymJ9ehVBUn-_yBbpI_ET1sy7E9qZoxdEJnOJcozFkL7b8eoxgZv2gDYzsnCf_3vU6DH3AOlnFHJ3Gr3_C-Gl";
+		public const string Exponent = "AQAB";
+
+		public const string Document = @"{
+  ""format"": ""geuneda.appsetting.v1"",
+  ""payload"": ""ewogICJyZXZpc2lvbiI6IDEsCiAgInZlcnNpb25zIjogewogICAgIjEuMC4wIjogewogICAgICAicGxhdGZvcm1zIjogeyAiYW5kcm9pZCI6ICJvcGVuIiwgImlvcyI6ICJvcGVuIiwgInN0YW5kYWxvbmUiOiAib3BlbiIgfSwKICAgICAgImVuZHBvaW50cyI6IHsKICAgICAgICAiYXV0aCI6ICJodHRwczovL2F1dGguZXhhbXBsZS5jb20vYXV0aC8iLAogICAgICAgICJnYW1lIjogImh0dHBzOi8vZ2FtZS5leGFtcGxlLmNvbS8iLAogICAgICAgICJyZWFsdGltZSI6ICJ3c3M6Ly9ydC5leGFtcGxlLmNvbS9ycGMiCiAgICAgIH0sCiAgICAgICJtYWludGVuYW5jZSI6IHsKICAgICAgICAic3RhcnRBdCI6ICIyMDMwLTAxLTAxVDAyOjAwOjAwWiIsCiAgICAgICAgImVuZEF0IjogIjIwMzAtMDEtMDFUMDQ6MDA6MDBaIiwKICAgICAgICAiZGVmYXVsdExhbmd1YWdlIjogImVuIiwKICAgICAgICAibWVzc2FnZXMiOiB7ICJlbiI6ICJTY2hlZHVsZWQgbWFpbnRlbmFuY2UiLCAia28iOiAi7KCV6riwIOygkOqygCIgfQogICAgICB9LAogICAgICAiZmVhdHVyZXMiOiB7ICJzaG9wRW5hYmxlZCI6IHRydWUgfQogICAgfSwKICAgICIxLjEuMCI6IHsKICAgICAgInBsYXRmb3JtcyI6IHsgImFuZHJvaWQiOiAiaW50ZXJuYWwiLCAiaW9zIjogImludGVybmFsIiwgInN0YW5kYWxvbmUiOiAiaW50ZXJuYWwiIH0sCiAgICAgICJyZXZpZXciOiB0cnVlLAogICAgICAiZW5kcG9pbnRzIjogeyAiZ2FtZSI6ICJodHRwczovL3Jldmlldy5leGFtcGxlLmNvbS8iIH0KICAgIH0sCiAgICAiKiI6IHsKICAgICAgInBsYXRmb3JtcyI6IHsgImFuZHJvaWQiOiAiY2xvc2VkIiwgImlvcyI6ICJjbG9zZWQiLCAic3RhbmRhbG9uZSI6ICJjbG9zZWQiIH0KICAgIH0KICB9Cn0K"",
+  ""signatures"": [
+    {
+      ""keyId"": ""fixture-2026-10"",
+      ""signature"": ""P5BJA891Jdqfn+yez+oiZ4YaCh1BDuMGB+JnuwEEBbOmdW2aNLQu3RcbyrD55zjeQE07p1Iqc5OzUjFjMuguyjfl8jV6GHoPwBQlF87tSDjclGOKA36GZuINL20T7xiUUlJwB5Jo9KNvvg9DZ0sxckGh+9v3vPy+CWr6CV2Qo1l4dT/aC6nQo9poEp8o4nsRqmUuRQ/pPF43Of1AWLncs0ULP5rQgEaTBjDBzLm1YnSm7cgHZaJagW2RA05QQnMzhNLPxFKJP9xAjD3E9zLkslzBAIpP6Vt2uQpALab4yHjJz4huz+Yjhf8Yj0UJ2PmF7xrVreX8pTDtY6IWb+eug/ezaw013mQMjUoDCVnXuku6BephIE1oYSgpYsfU06Qp29s1HLTgVLpwds4+Gg2obvkTi65ckp+z7B4AjAt3GuEdJky/6J3XE1CHOU6jSTuYvyc5gA1G/7PR+iDKI22A2pIDzWvNhH8U2G0ei2n0iAftBX3PNxbnei5mhhHU2raZ""
+    }
+  ]
+}
+";
+	}
+}

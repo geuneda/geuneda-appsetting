@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- 시작할 때 만든 키로 예제 설정을 서명해 내려주는 샘플 배포 서버. Unity 상호 운용 테스트(SampleServerInteropTest)가 이 서버에 붙는다 -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Geuneda.AppSetting.SampleServer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Geuneda.AppSetting.Server/Geuneda.AppSetting.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsetting.payload.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
