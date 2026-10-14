@@ -6,9 +6,9 @@
 |------|------|-------------|
 | 설정 받기 | `IAppSettingService`, `AppSettingService`, `AppSettingServiceOptions` | `Geuneda.AppSetting` |
 | 판정 | `AppSetting`, `AppAccess`, `AppPlatformStatus`, `AppSettingPlatforms` | `Geuneda.AppSetting` |
-| 문서 | `AppSettingDocument`, `AppVersionSetting`, `MaintenanceNotice`, `AppSettingPublicKey` | `Geuneda.AppSetting` |
+| 문서 | `AppSettingDocument`, `AppVersionSetting`, `MaintenanceNotice`, `AppSettingResource`, `AppSettingPublicKey` | `Geuneda.AppSetting` |
 | 코드 | `AppSettingResultCodes`(4000 블록), `AppSettingDocumentException` | `Geuneda.AppSetting` |
-| 서명·배포(.NET, `Server~/`) | `AppSettingSigningKey`, `AppSettingSigner`, `AppSettingPublicKeys`, `AddGeunedaAppSetting`, `MapGeunedaAppSetting`, CLI `geuneda-appsetting` | `Geuneda.AppSetting.Server` |
+| 서명·배포(.NET, `Server~/`) | `AppSettingSigningKey`, `AppSettingSigner`, `AppSettingPublicKeys`, `AppSettingResources`, `AddGeunedaAppSetting`, `MapGeunedaAppSetting`, CLI `geuneda-appsetting` | `Geuneda.AppSetting.Server` |
 
 ## 설치
 
@@ -155,7 +155,15 @@ setting.TryGetEndpoint("realtime", out var realtimeUrl);
         "defaultLanguage": "en",
         "messages": { "en": "Scheduled maintenance", "ko": "정기 점검" }
       },
-      "features": { "softUpdate": true }
+      "features": { "softUpdate": true },
+      "resources": {
+        "tables": {
+          "version": "20261014-1",
+          "size": 48213,
+          "sha256": "<파일 SHA-256 16진수 64자>",
+          "url": "https://cdn.example.com/tables/20261014-1.json"
+        }
+      }
     },
     "1.3.0": { "platforms": { "android": "internal", "ios": "internal" }, "review": true },
     "*": { "platforms": { "android": "closed", "ios": "closed" } }
@@ -172,11 +180,24 @@ setting.TryGetEndpoint("realtime", out var realtimeUrl);
 | `endpoints` | 이름 → 주소(호스트가 있는 절대 주소). 이름은 대소문자를 가립니다 |
 | `maintenance` | 시간대(`Z` 나 오프셋)가 있는 ISO 8601 시각, `endAt` 은 `startAt` 보다 뒤, 기본 언어 문구 필수. 문구는 정확한 코드, 기본 하위 태그(`ko-KR` → `ko`), 기본 언어 순으로 찾습니다 |
 | `features` | 게임이 정하는 JSON 객체 |
+| `resources` | 카테고리 → `version`·`size`·`sha256`·`url`. 카테고리·버전은 `[a-z0-9._-]` 1~64자(소문자만, 끝의 점·Windows 장치 이름(`con` 등) 제외, `.`, `..` 제외, 캐시 파일 이름이 됨), `sha256` 은 16진수 64자, `url` 은 http·https 절대 주소. 두 모드 모두 이 규칙을 적용합니다 |
 
 - 본문은 표준 JSON(RFC 8259)이어야 합니다. 주석, 작은따옴표, 따옴표 없는 이름, 뒤 쉼표, `NaN`·`Infinity`, double 로 나타낼 수 없는 숫자(`1e400`), 같은 이름의 속성 두 번, JSON 뒤의 다른 내용(루트 앞뒤는 공백·탭·CR·LF 만, NBSP 등 거절), UTF-8 이 아닌 바이트는 거절합니다(Newtonsoft 가 받아 주는 비표준 문법을 막아 CLI 와 클라이언트가 같게 읽음). JSON `null` 은 없는 값으로 봅니다.
 - `features` 는 서명한 본문에 쓴 텍스트 그대로 게임 형식으로 읽습니다(`1e-30` 같은 작은 double, `1e30` 같은 큰 double, 28자리 decimal 이 그대로 남음).
 - 클라이언트는 새 버전 문서와 섞여 쓰일 수 있어 모르는 속성은 무시하고 모르는 상태 문자열은 닫힘으로 봅니다. 서명 CLI 는 오타를 막으려고 모르는 속성·상태, 호스트 없는 주소, 앞뒤 공백이 있는 버전 키도 거절합니다.
 - 봉투·본문 해석 코드는 클라이언트(`Runtime/Document/`)와 CLI·서버가 같은 파일을 컴파일합니다. CLI 가 받아들인 문서는 클라이언트도 받아들입니다.
+
+### 리소스 매니페스트
+
+`AppSetting.Resources`(고른 노드의 카테고리 → `AppSettingResource`)는 문서 서명이 크기·해시를 보장하는 다운로드 목록입니다. 받기·캐시는 [com.geuneda.resource](https://github.com/geuneda/geuneda-resource) 가 하고, 두 패키지는 서로 의존하지 않아 게임이 옮겨 줍니다.
+
+```csharp
+var entries = setting.Resources
+    .Select(pair => new ResourceEntry(pair.Key, pair.Value.Version, pair.Value.Size, pair.Value.Sha256, pair.Value.Url))
+    .ToList();
+```
+
+리소스 버전은 앱 버전 노드마다 둡니다(테이블 형식이 앱 버전에 따라 다를 수 있음). 파일 이름에 버전을 넣어 올리면 CDN 캐시 무효화가 필요 없습니다.
 
 ## 서명 도구
 
@@ -190,6 +211,9 @@ geuneda-appsetting public-key --key appsetting-2026-10.pem --key-id 2026-10
 
 # 2. 서명(본문을 엄격하게 검사한 뒤 임시 파일에 쓰고 이름을 바꿈). --out 의 판보다 낮으면 거절, 같으면 경고
 geuneda-appsetting sign --payload payload.json --key appsetting-2026-10.pem --key-id 2026-10 --out appsetting.json
+
+# 리소스 파일을 CDN 에 올리기 전에 본문의 resources 항목 만들기(크기·SHA-256 계산)
+geuneda-appsetting resource --category tables --version 20261014-1 --url https://cdn.example.com/tables/20261014-1.json --file tables.json
 
 # 3. 확인(클라이언트와 같은 규칙, --strict 면 서명 도구 규칙)
 geuneda-appsetting verify --document appsetting.json --public-keys public-keys.json

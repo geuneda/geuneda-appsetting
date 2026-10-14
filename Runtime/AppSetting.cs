@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Geuneda.Core;
 using Newtonsoft.Json;
@@ -16,6 +17,9 @@ namespace Geuneda.AppSetting
 	/// </remarks>
 	public sealed class AppSetting
 	{
+		private static readonly IReadOnlyDictionary<string, AppSettingResource> EmptyResources =
+			new ReadOnlyDictionary<string, AppSettingResource>(new Dictionary<string, AppSettingResource>());
+
 		/// <summary>문서 전체입니다(다른 버전의 노드 포함).</summary>
 		public AppSettingDocument Document { get; }
 
@@ -37,6 +41,9 @@ namespace Geuneda.AppSetting
 		public AppPlatformStatus Status { get; }
 
 		public bool IsReview => Version != null && Version.IsReview;
+
+		/// <summary>고른 노드의 리소스 매니페스트(카테고리 → 항목)입니다. 노드가 없으면 비어 있습니다.</summary>
+		public IReadOnlyDictionary<string, AppSettingResource> Resources => Version?.Resources ?? EmptyResources;
 
 		/// <summary>고른 노드의 점검 공지입니다. 지금 점검 시간인지는 <see cref="MaintenanceNotice.IsActiveAt"/> 로 봅니다.</summary>
 		public MaintenanceNotice Maintenance => Version?.Maintenance;

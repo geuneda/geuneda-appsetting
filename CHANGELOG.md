@@ -4,6 +4,12 @@
 이 형식은 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)를 기반으로 하며,
 이 프로젝트는 [Semantic Versioning](http://semver.org/spec/v2.0.0.html)을 따릅니다.
 
+## [0.2.0] - 2026-10-14
+
+**New**:
+- 본문 버전 노드에 리소스 매니페스트 `resources`(카테고리 → `version`, `size`, `sha256`, `url`)와 `AppVersionSetting.Resources`, `AppSetting.Resources`, `AppSettingResource`. 카테고리·버전은 캐시 파일 이름이 되므로 `[a-z0-9._-]` 1~64자(소문자만, 끝의 점·Windows 장치 이름(`con` 등) 제외, `.`, `..` 제외), sha256 은 16진수 64자(소문자로 맞춤), url 은 http·https 절대 주소. 형식 규칙은 두 모드 모두 적용(모르는 속성만 엄격 모드에서 거절). 받는 쪽은 com.geuneda.resource 의 `ResourceEntry`(의존 없음)
+- 서명 CLI `resource --category --version --url --file`: 올릴 파일의 크기·SHA-256 으로 `resources` 항목 JSON 출력(본문 규칙으로 확인). `verify` 요약에 리소스 표시. 서버 `AppSettingResources.Describe`
+
 ## [0.1.0] - 2026-10-14
 
 **New**:

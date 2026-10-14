@@ -28,6 +28,8 @@ Commands:
               Check the payload strictly, sign it with every key and write the document atomically.
               Refuses a revision lower than the one already in --out. Concurrent signs of the same --out
               wait for each other through a .<file>.lock file next to it (left in place; do not deploy it).
+  resource    --category <name> --version <version> --url <url> --file <file>
+              Print the payload resources entry for a file to upload (its size and SHA-256).
   verify      --document <document.json> --public-keys <public-keys.json> [--strict]
               Verify the signature and payload as clients do (or strictly) and print a summary.
 ";
@@ -52,6 +54,8 @@ Commands:
 						return PublicKey(options, output);
 					case "sign":
 						return Sign(options, output, error);
+					case "resource":
+						return Resource(options, output);
 					case "verify":
 						return Verify(options, output);
 					default:
@@ -176,6 +180,13 @@ Commands:
 			}
 		}
 
+		private static int Resource(ToolArguments options, TextWriter output)
+		{
+			options.RejectUnknown("--category", "--version", "--url", "--file");
+			output.WriteLine(AppSettingResources.Describe(options.Single("--category"), options.Single("--version"), options.Single("--url"), options.Single("--file")));
+			return Ok;
+		}
+
 		private static int Verify(ToolArguments options, TextWriter output)
 		{
 			options.RejectUnknown("--document", "--public-keys", "--strict");
@@ -198,6 +209,11 @@ Commands:
 				if (node.Endpoints.Count > 0)
 				{
 					line += $"; endpoints {string.Join(", ", node.Endpoints.Keys)}";
+				}
+
+				if (node.Resources.Count > 0)
+				{
+					line += $"; resources {string.Join(", ", node.Resources.Select(resource => $"{resource.Key}@{resource.Value.Version}"))}";
 				}
 
 				if (node.Maintenance != null)

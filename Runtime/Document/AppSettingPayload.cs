@@ -69,7 +69,7 @@ namespace Geuneda.AppSetting
 		{
 			if (strict)
 			{
-				AppSettingJson.RejectUnknown(node, path, "platforms", "review", "endpoints", "maintenance", "features");
+				AppSettingJson.RejectUnknown(node, path, "platforms", "review", "endpoints", "maintenance", "features", "resources");
 			}
 
 			var platformsObject = strict
@@ -119,6 +119,22 @@ namespace Geuneda.AppSetting
 				endpoints.Add(property.Name, value);
 			}
 
+			var resources = new Dictionary<string, AppSettingResource>(StringComparer.Ordinal);
+			var resourcesObject = AppSettingJson.OptionalObject(node, "resources", path);
+
+			foreach (var property in resourcesObject?.Properties() ?? new JProperty[0])
+			{
+				var resourcePath = $"{path}.resources['{property.Name}']";
+
+				if (!AppSettingResource.IsValidName(property.Name))
+				{
+					throw AppSettingJson.Invalid($"{resourcePath} needs a category of 1-64 characters from a-z 0-9 . _ - (lowercase only, no trailing '.', not a Windows device name such as con)");
+				}
+
+				var entry = property.Value as JObject ?? throw AppSettingJson.Invalid($"{resourcePath} must be an object");
+				resources.Add(property.Name, ParseResource(entry, resourcePath, strict));
+			}
+
 			var maintenanceObject = AppSettingJson.OptionalObject(node, "maintenance", path);
 			var features = AppSettingJson.OptionalObject(node, "features", path);
 
@@ -126,8 +142,43 @@ namespace Geuneda.AppSetting
 				new ReadOnlyDictionary<string, AppPlatformStatus>(platforms),
 				AppSettingJson.OptionalBool(node, "review", path),
 				new ReadOnlyDictionary<string, string>(endpoints),
+				new ReadOnlyDictionary<string, AppSettingResource>(resources),
 				maintenanceObject == null ? null : ParseMaintenance(maintenanceObject, path + ".maintenance", strict),
 				features == null ? "{}" : rawFeatures);
+		}
+
+		private static AppSettingResource ParseResource(JObject entry, string path, bool strict)
+		{
+			if (strict)
+			{
+				AppSettingJson.RejectUnknown(entry, path, "version", "size", "sha256", "url");
+			}
+
+			// 리소스 캐시가 이름을 파일 이름으로 쓰고 크기·해시로 받은 파일을 검증하므로 두 모드 모두 엄격하게 본다
+			var version = AppSettingJson.RequireString(entry, "version", path);
+
+			if (!AppSettingResource.IsValidName(version))
+			{
+				throw AppSettingJson.Invalid($"{path}.version must be 1-64 characters from a-z 0-9 . _ - (lowercase only, no trailing '.', not . .. or a Windows device name such as con): '{version}'");
+			}
+
+			var size = AppSettingJson.RequireLong(entry, "size", path);
+
+			if (size < 0)
+			{
+				throw AppSettingJson.Invalid($"{path}.size must not be negative");
+			}
+
+			var sha256 = AppSettingResource.NormalizeSha256(AppSettingJson.RequireString(entry, "sha256", path))
+				?? throw AppSettingJson.Invalid($"{path}.sha256 must be 64 hex characters");
+			var url = AppSettingJson.RequireString(entry, "url", path);
+
+			if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) || string.IsNullOrEmpty(uri.Host))
+			{
+				throw AppSettingJson.Invalid($"{path}.url must be an absolute http or https address: '{url}'");
+			}
+
+			return new AppSettingResource(version, size, sha256, url);
 		}
 
 		private static AppPlatformStatus ParseStatus(string value, string path, bool strict)

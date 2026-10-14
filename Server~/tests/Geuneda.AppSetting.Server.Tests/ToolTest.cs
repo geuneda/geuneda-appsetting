@@ -160,6 +160,29 @@ namespace Geuneda.AppSetting.Server.Tests
 		}
 
 		[Fact]
+		public void Resource_PrintsSizeAndSha256_ThatSignAccepts()
+		{
+			File.WriteAllText(PathOf("tables.json"), "test");
+			var described = Run("resource", "--category", "tables", "--version", "20261014-1", "--url", "https://cdn.test/tables/20261014-1.json", "--file", PathOf("tables.json"));
+
+			Assert.Equal(ToolCommands.Ok, described.Code);
+			Assert.Contains("\"size\": 4", described.Output);
+			Assert.Contains("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", described.Output);
+
+			WriteKey("k1.pem", TestKeys.First);
+			WritePublicKeys("keys.json", TestKeys.First);
+			File.WriteAllText(PathOf("payload.json"), "{\"revision\":1,\"versions\":{\"*\":{\"platforms\":{},\"resources\":" + described.Output.Trim() + "}}}");
+			var signed = Run("sign", "--payload", PathOf("payload.json"), "--key", PathOf("k1.pem"), "--key-id", "k1", "--out", PathOf("appsetting.json"));
+			var verified = Run("verify", "--document", PathOf("appsetting.json"), "--public-keys", PathOf("keys.json"));
+
+			Assert.Equal(ToolCommands.Ok, signed.Code);
+			Assert.Contains("resources tables@20261014-1", verified.Output);
+
+			var traversal = Run("resource", "--category", "../x", "--version", "1", "--url", "https://cdn.test/x", "--file", PathOf("tables.json"));
+			Assert.Equal(ToolCommands.Failed, traversal.Code);
+		}
+
+		[Fact]
 		public void Verify_UntrustedOrStrictFailures_ExitWithOne()
 		{
 			File.WriteAllBytes(PathOf("appsetting.json"), TestKeys.Document(1, key: TestKeys.Second));

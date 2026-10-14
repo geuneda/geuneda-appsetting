@@ -18,6 +18,9 @@ namespace Geuneda.AppSetting
 		/// <summary>이름별 서버 주소입니다(예: <c>game</c>, <c>realtime</c>). 이름은 대소문자를 가립니다.</summary>
 		public IReadOnlyDictionary<string, string> Endpoints { get; }
 
+		/// <summary>카테고리(대소문자 구분)별 리소스 매니페스트 항목입니다. 없으면 비어 있습니다.</summary>
+		public IReadOnlyDictionary<string, AppSettingResource> Resources { get; }
+
 		/// <summary>점검 공지입니다. 없으면 null 입니다.</summary>
 		public MaintenanceNotice Maintenance { get; }
 
@@ -27,11 +30,13 @@ namespace Geuneda.AppSetting
 		public string FeaturesJson { get; }
 
 		internal AppVersionSetting(IReadOnlyDictionary<string, AppPlatformStatus> platforms, bool isReview,
-			IReadOnlyDictionary<string, string> endpoints, MaintenanceNotice maintenance, string featuresJson)
+			IReadOnlyDictionary<string, string> endpoints, IReadOnlyDictionary<string, AppSettingResource> resources,
+			MaintenanceNotice maintenance, string featuresJson)
 		{
 			Platforms = platforms;
 			IsReview = isReview;
 			Endpoints = endpoints;
+			Resources = resources;
 			Maintenance = maintenance;
 			FeaturesJson = featuresJson;
 		}

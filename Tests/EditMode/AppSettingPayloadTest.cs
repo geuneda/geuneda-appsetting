@@ -255,6 +255,67 @@ namespace Geuneda.AppSetting.Tests
 			Assert.AreEqual(features, Parse(WithNode("{\"platforms\":{},\"features\":" + features + "}"), true).Versions["1.0"].FeaturesJson);
 		}
 
+		private const string Sha = "9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08";
+
+		private static string WithResource(string category, string entry)
+		{
+			return WithNode("{\"platforms\":{},\"resources\":{\"" + category + "\":" + entry + "}}");
+		}
+
+		private static string Entry(string version = "20261014-1", string size = "4", string sha = Sha, string url = "https://cdn.example.com/tables/20261014-1.json")
+		{
+			return "{\"version\":\"" + version + "\",\"size\":" + size + ",\"sha256\":\"" + sha + "\",\"url\":\"" + url + "\"}";
+		}
+
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Resources_AreReadWithLowercaseHash(bool strict)
+		{
+			var resource = Parse(WithResource("tables", Entry()), strict).Versions["1.0"].Resources["tables"];
+
+			Assert.AreEqual("20261014-1", resource.Version);
+			Assert.AreEqual(4, resource.Size);
+			Assert.AreEqual(Sha.ToLowerInvariant(), resource.Sha256);
+			Assert.AreEqual("https://cdn.example.com/tables/20261014-1.json", resource.Url);
+			Assert.AreEqual(0, Parse(WithNode("{\"platforms\":{}}"), strict).Versions["1.0"].Resources.Count);
+		}
+
+		[TestCase("con", null, null, null, null)]
+		[TestCase("tables", "nul.1", null, null, null)]
+		[TestCase("tables", "v1.", null, null, null)]
+		[TestCase("Tables", null, null, null, null)]
+		[TestCase("tables", "V1", null, null, null)]
+		[TestCase("..", null, null, null, null)]
+		[TestCase("a/b", null, null, null, null)]
+		[TestCase("a b", null, null, null, null)]
+		[TestCase("0123456789012345678901234567890123456789012345678901234567890123x", null, null, null, null)]
+		[TestCase("tables", "../up", null, null, null)]
+		[TestCase("tables", ".", null, null, null)]
+		[TestCase("tables", "v\\\\1", null, null, null)]
+		[TestCase("tables", null, "-1", null, null)]
+		[TestCase("tables", null, "1.5", null, null)]
+		[TestCase("tables", null, null, "abc", null)]
+		[TestCase("tables", null, null, "zz86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", null)]
+		[TestCase("tables", null, null, null, "/tables.json")]
+		[TestCase("tables", null, null, null, "ftp://cdn.example.com/t.json")]
+		[TestCase("tables", null, null, null, "file:///etc/hosts")]
+		public void Resources_InvalidEntry_IsInvalidInBothModes(string category, string version, string size, string sha, string url)
+		{
+			var json = WithResource(category, Entry(version ?? "20261014-1", size ?? "4", sha ?? Sha, url ?? "https://cdn.example.com/t.json"));
+
+			AssertInvalid(json);
+			AssertInvalid(json, true);
+		}
+
+		[Test]
+		public void Resources_UnknownProperty_PassesLenient_AndFailsStrict()
+		{
+			var json = WithResource("tables", Entry().TrimEnd('}') + ",\"note\":\"x\"}");
+
+			Assert.DoesNotThrow(() => Parse(json));
+			AssertInvalid(json, true);
+		}
+
 		[Test]
 		public void PayloadHash_SameBytesSame_DifferentBytesDifferent()
 		{

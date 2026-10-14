@@ -2,10 +2,10 @@
   "name": "com.geuneda.appsetting",
   "displayName": "Geuneda AppSetting",
   "author": "geuneda",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "2021.3",
   "license": "MIT",
-  "description": "원격 앱 설정입니다. 서명된 설정 문서(RSA-3072 PKCS#1 SHA-256)를 받아 검증하고, 앱 버전별 노드('*' 기본 노드)에서 플랫폼별 상태(열림·내부·닫힘), 점검 공지, 서버 주소, 기능 플래그를 읽어 접속 판정(열림·내부·점검·업데이트 필요)을 돌려줍니다. ETag 조건부 요청(304), 갱신 single-flight, 낮은 revision 무시, 실패 시 현재 설정 유지. 서명 CLI 와 ASP.NET Core 배포 헬퍼(Server~)를 함께 둡니다.",
+  "description": "원격 앱 설정입니다. 서명된 설정 문서(RSA-3072 PKCS#1 SHA-256)를 받아 검증하고, 앱 버전별 노드('*' 기본 노드)에서 플랫폼별 상태(열림·내부·닫힘), 점검 공지, 서버 주소, 기능 플래그, 리소스 매니페스트(카테고리별 버전·크기·SHA-256·URL)를 읽어 접속 판정(열림·내부·점검·업데이트 필요)을 돌려줍니다. ETag 조건부 요청(304), 갱신 single-flight, 낮은 revision 무시, 실패 시 현재 설정 유지. 서명 CLI 와 ASP.NET Core 배포 헬퍼(Server~)를 함께 둡니다.",
   "type": "library",
   "hideInEditor": false,
   "dependencies": {

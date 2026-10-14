@@ -199,6 +199,17 @@ namespace Geuneda.AppSetting.Tests
 		}
 
 		[Test]
+		public void Resources_ComeFromTheMatchedNode()
+		{
+			const string resources = "\"resources\":{\"tables\":{\"version\":\"7\",\"size\":1,\"sha256\":\"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08\",\"url\":\"https://cdn.test/7\"}}";
+			var matched = Evaluate("\"*\":" + Node("open", resources), "1.0.0");
+			var none = Evaluate("\"2.0.0\":" + Node("open", resources), "1.0.0");
+
+			Assert.AreEqual("7", matched.Resources["tables"].Version);
+			Assert.AreEqual(0, none.Resources.Count);
+		}
+
+		[Test]
 		public void GetFeatures_WithoutNode_ReturnsDefaults()
 		{
 			var features = Evaluate("\"2.0.0\":" + Node("open"), "1.0.0").GetFeatures<Features>();
